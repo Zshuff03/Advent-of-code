@@ -1,6 +1,6 @@
-const { testInput } = require('./input.js');
+const { stringInput } = require('./input.js');
 const fs = require('fs');
-const input = testInput.split(',');
+const input = stringInput.split(',');
 const log = [];
 
 const invalidIDs = [];
@@ -12,25 +12,18 @@ for (const range of input) {
     for (let i = start; i <= end; i++) {
         const testString = i.toString();
 
-        let pattern = '';
-        console.log('\n',testString);
-        if (testString.length === 2 && testString.charAt(0) === testString.charAt(1)) {
-            invalidIDs.push(testString);
-            log.push({testString, pattern: testString.charAt(0)});
-            continue;
-        }
-
-        for (let j = 0; j <= testString.length; j++) {
-            const currentChar = testString.charAt(j);
-            if (j <= 2) {
-                continue;
-            }
-            pattern = `${pattern}${currentChar}`;
-            const patternRegex = new RegExp(pattern, 'g');
-            if(testString.replaceAll(patternRegex, '').length === 0) {
-                log.push({testString, pattern});
+       for (let len = 1; len <= testString.length / 2; len++) {
+            // The string length must be divisible by the pattern length
+            if (testString.length % len === 0) {
+                const pattern = testString.substring(0, len);
+                const repeats = testString.length / len;
+                
+                // Check if repeating this pattern creates the original string
+                if (pattern.repeat(repeats) === testString) {
                     invalidIDs.push(testString);
-                    break;
+                    log.push({ testString, pattern });
+                    break; // Found a valid pattern, no need to check other lengths
+                }
             }
         }
     }
