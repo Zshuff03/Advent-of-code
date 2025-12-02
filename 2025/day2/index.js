@@ -1,6 +1,6 @@
-const { stringInput } = require('./input.js');
+const { testInput } = require('./input.js');
 const fs = require('fs');
-const input = stringInput.split(',');
+const input = testInput.split(',');
 const log = [];
 
 const invalidIDs = [];
@@ -8,27 +8,29 @@ for (const range of input) {
     const rangeArray = range.split('-').map(numStr => parseInt(numStr, 10));
     const start = rangeArray[0];
     const end = rangeArray[1];
+
     for (let i = start; i <= end; i++) {
         const testString = i.toString();
 
-        let buildingStart = true;
-        let startingPattern = '';
-        let checkingPattern = '';
+        let pattern = '';
+        console.log('\n',testString);
+        if (testString.length === 2 && testString.charAt(0) === testString.charAt(1)) {
+            invalidIDs.push(testString);
+            log.push({testString, pattern: testString.charAt(0)});
+            continue;
+        }
+
         for (let j = 0; j <= testString.length; j++) {
             const currentChar = testString.charAt(j);
-            if (currentChar === startingPattern[0]) {
-                buildingStart = false;
+            if (j <= 2) {
+                continue;
             }
-
-            if (buildingStart) {
-                startingPattern = `${startingPattern}${currentChar}`;
-            } else {
-                checkingPattern = `${checkingPattern}${currentChar}`;
-            }
-
-            if (startingPattern === checkingPattern) {
-                invalidIDs.push(testString);
-                break;
+            pattern = `${pattern}${currentChar}`;
+            const patternRegex = new RegExp(pattern, 'g');
+            if(testString.replaceAll(patternRegex, '').length === 0) {
+                log.push({testString, pattern});
+                    invalidIDs.push(testString);
+                    break;
             }
         }
     }
