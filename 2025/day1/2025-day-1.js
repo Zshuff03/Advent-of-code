@@ -1,4 +1,4 @@
-const { stringInput } = require('../input.js');
+const { stringInput } = require('./chris-input.js');
 const fs = require('fs');
 const input = stringInput.split('\n');
 
@@ -18,27 +18,18 @@ console.log('final password: ', password);
 fs.writeFileSync('./log.json', JSON.stringify(countLog, null, 2));
 
 
-function countSteps(start, rotation, steps) {
+function countSteps(start, direction, steps) {
     let counter = start;
-    if (rotation === "L") {
-      steps = steps * -1;
+    for (let i = 0; i < steps; i++) {
+        if (direction === 'R') {
+            counter = (counter + 1) % 100;
+        } else {
+            counter = (counter - 1 + 100) % 100;
+        }
+        if (counter === 0) {
+            password++;
+        }
     }
-
-    const finalPos = start + steps;
-
-    if (finalPos <= 0 || finalPos >= 100) {
-      password += 1;
-    }
-    
-    if (finalPos < 0) {
-        counter = finalPos + 100;
-    } else if (finalPos >= 100) {
-        counter = finalPos % 100;
-    } else {
-        counter = finalPos;
-    }
-    countLog.push({start, rotation, steps, counter})
-
-
+    countLog.push({start, direction, steps, counter});
     return counter;
 }
