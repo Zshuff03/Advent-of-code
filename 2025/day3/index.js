@@ -1,22 +1,28 @@
-const { testInput } = require('./input.js');
+const { stringInput } = require('./input.js');
 const fs = require('fs');
-const input = testInput.split('\n');
+const input = stringInput.split('\n');
 const log = [];
 
 const joltages = [];
 for (const bank of input) {
-    let highestJoltageString = bank.slice(0, 12); 
-    console.log('\n new battery bank: ', bank);
-    let currentLowest = null;
-    for (let i = 0; i < bank.length; i++) {
-        if(!currentLowest) {
-            currentLowest = parseInt(highestJoltageString, 10);
+    let highestJoltage = '';
+    let cursor = 0;
+    for (let j = 0; j < 12; j++) {
+        let highestChar = 0;
+        let bestIndex = -1
+        let searchLimit = bank.length - (11 - j);
+        for (let i = cursor; i < searchLimit; i++) {
+            const val = parseInt(bank[i], 10);
+            // Find the largest digit. If equal, we keep the first one found (strict >)
+            if (val > highestChar) {
+                highestChar = val;
+                bestIndex = i;
+            }
         }
-        const currentChar = bank.charAt(i);
-        const currentJoltage = parseInt(highestJoltageString, 10);
-        
+        highestJoltage += highestChar.toString();
+        cursor = bestIndex + 1;
     }
-    joltages.push(parseInt(highestJoltageString, 10));
+    joltages.push(parseInt(highestJoltage, 10));
 }
 let total = 0;
 for (const joltage of joltages) {
