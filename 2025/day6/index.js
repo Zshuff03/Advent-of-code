@@ -1,10 +1,6 @@
 const { stringInput } = require('./input.js');
 const fs = require('fs');
-const input = stringInput.split('\n');
-const solved = [];
-let total = 0;
-const numbers = [];
-const operations = input.pop().split(' ').map(op => op.trim()).filter(op => !!op);
+const lines = stringInput.split('\n');
 
 const calculate = {
     '+': function (array) { return array.reduce((acc, val) => acc + val, 0) },
@@ -13,29 +9,41 @@ const calculate = {
     '/': function (array) { return array.reduce((acc, val) => acc / val, 1) }
 };
 
-for (let i = 0; i < input.length; i++) {
-    const numberLine = input[i].trim().split(' ').filter(n => !!n);
-    for (let j = 0; j < numberLine.length; j++) {
-        const numberColumn = numbers[j] || [];
-       numberColumn.push(parseInt(numberLine[j].trim(), 10));
-       numbers[j] = numberColumn;
+let total = 0;
+let numbers = [];
+let builtNum = '';
+for (let i = lines[0].length - 1; i >= 0; i--) {
+    for (let j = 0; j < lines.length; j++) {
+        const line = lines[j];
+        const char = line[i];
+        
+        if(!!char.trim()) {
+            if(Object.keys(calculate).includes(char)) {
+                if(builtNum) {
+                    numbers.push(parseInt(builtNum, 10));
+                }
+                total += calculateColumn(numbers, char);
+                numbers = [];
+                builtNum = '';
+                break;
+            }
+            builtNum += char;
+            continue;
+        }
+
+        if (!!builtNum.trim()) {
+            numbers.push(parseInt(builtNum, 10));
+            builtNum = '';
+        }
     }
 }
 
-console.log(numbers);
-for (let k = 0; k < operations.length; k++) {
-    const operation = operations[k];
-    let lineTotal = 0;
-    console.log('running operation', operation, 'on numbers', numbers[k]);
-    const numberColumn = numbers[k];
-    lineTotal += calculate[operation](numberColumn);
-    console.log('line total', lineTotal);
-    solved.push(lineTotal);
-    total += lineTotal;
+function calculateColumn(numbersArray, operand) {
+    return calculate[operand](numbersArray);
 }
 
 
 console.log(`${total}`);
 
-fs.writeFileSync("./log.json", JSON.stringify({numbers, operations, solved, total}, null, 3));
+fs.writeFileSync("./log.json", JSON.stringify({total}, null, 3));
 
